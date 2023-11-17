@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Seller {
+  id                   Int       @id @default(autoincrement())
+  createdAt            DateTime  @default(now())
+  first_name           String    @db.VarChar(30)
+  middle_name          String    @db.VarChar(30)
+  last_name            String    @db.VarChar(30)
+  birth_date           DateTime
+  bio                  String?   @db.VarChar(500)
+  last_time_online     DateTime  @default(now())
+  sold_items           Int       @default(0)
+  joined               DateTime
+  total_items_placed   Int
+  items_placed_now     Int
+  most_frequent_buyers Buyer[]
+  favourite_category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId           Int?
+  Storage              Storage?  @relation(fields: [storageId], references: [id])
+  storageId            Int?
+  Guarant              Guarant[]
+}
+
+model Buyer {
+  id               Int       @id @default(autoincrement())
+  createdAt        DateTime  @default(now())
+  first_name       String    @db.VarChar(30)
+  middle_name      String    @db.VarChar(30)
+  last_name        String    @db.VarChar(30)
+  birth_date       DateTime
+  bio              String?   @db.VarChar(500)
+  last_time_online DateTime  @default(now())
+  bought_items     Int       @default(0)
+  joined           DateTime
+  Seller           Seller?   @relation(fields: [sellerId], references: [id])
+  sellerId         Int?
+  Storage          Storage?  @relation(fields: [storageId], references: [id])
+  storageId        Int?
+  guarant          Guarant   @relation(fields: [guarantId], references: [id])
+  guarantId        Int
+  Comment          Comment[]
+}
+
+model Category {
+  id                  Int      @id @default(autoincrement())
+  name                String   @unique @db.VarChar(50)
+  Seller              Seller[]
+  placed_items_number Int      @default(0)
+  placed_items        Item[]
+  description         String   @db.VarChar(50)
+}
+
+model Item {
+  id          Int       @id @default(autoincrement())
+  Category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  name        String    @db.VarChar(50)
+  createdAt   DateTime  @default(now())
+  placedAt    DateTime?
+  description String    @db.VarChar(500)
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  buyer   Buyer  @relation(fields: [buyerId], references: [id])
+  title   String @db.VarChar(50)
+  body    String @db.VarChar(500)
+  buyerId Int
+}
+
+model Guarant {
+  id                Int              @id @default(autoincrement())
+  seller            Seller           @relation(fields: [sellerId], references: [id])
+  sellerId          Int
+  Buyer             Buyer[]
+  TransferService   TransferService? @relation(fields: [transferServiceId], references: [id])
+  transferServiceId Int?
+  Storage           Storage?         @relation(fields: [storageId], references: [id])
+  storageId         Int?
+}
+
+model TransferService {
+  id          Int          @id @default(autoincrement())
+  storages    Storage[]
+  departments Department[]
+  guarants    Guarant[]
+}
+
+model Department {
+  id                Int              @id @default(autoincrement())
+  TransferService   TransferService? @relation(fields: [transferServiceId], references: [id])
+  transferServiceId Int?
+}
+
+model Storage {
+  id                Int              @id @default(autoincrement())
+  buyers            Buyer[]
+  sellers           Seller[]
+  guarants          Guarant[]
+  TransferService   TransferService? @relation(fields: [transferServiceId], references: [id])
+  transferServiceId Int?
+}

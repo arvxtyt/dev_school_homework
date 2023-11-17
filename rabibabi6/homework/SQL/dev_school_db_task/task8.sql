@@ -1,0 +1,1 @@
+UPDATE city SET city = 'Dnipro' WHERE city_id = 603 RETURNING *;

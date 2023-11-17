@@ -1,0 +1,1 @@
+SELECT * FROM film WHERE starts_with(title, 'J');
